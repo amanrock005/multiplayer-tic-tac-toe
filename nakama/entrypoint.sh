@@ -40,6 +40,12 @@ if [ -n "$GOOGLE_CREDENTIALS_JSON" ]; then
   export GOOGLE_CREDENTIALS_JSON
 fi
 
+# Fresh Postgres has no Nakama schema — run migrations before starting the server.
+echo "[nakama-entrypoint] running: nakama migrate up" >&2
+/nakama/nakama migrate up \
+  --database.address="$NAKAMA_DATABASE_ADDRESS" \
+  --logger.stdout=true
+
 # Use = form so argv is unambiguous; omit empty google flag (empty value can confuse parsers).
 set -- /nakama/nakama \
   --name=nakama \
