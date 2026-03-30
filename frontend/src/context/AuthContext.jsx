@@ -50,14 +50,32 @@ export function AuthProvider({ children }) {
       setAccount(acct)
       return sess
     } catch (err) {
-      let msg = err?.message
-      if (!msg && err && typeof err.json === 'function' && typeof err.status === 'number') {
+      // nakama-js throws the raw fetch Response on HTTP errors — no .message
+      let msg = typeof err?.message === 'string' ? err.message : ''
+      const isResponse =
+        err &&
+        typeof err.status === 'number' &&
+        typeof err.json === 'function'
+      if (!msg && isResponse) {
         try {
           const body = await err.clone().json()
-          msg = body?.message || body?.error || err.statusText
+          msg =
+            body?.message ||
+            body?.error ||
+            (typeof body?.error === 'object' && body?.error?.message) ||
+            ''
         } catch {
-          msg = err.statusText || `Request failed (${err.status})`
+          try {
+            const text = await err.clone().text()
+            msg = text?.slice(0, 500) || ''
+          } catch {
+            msg = err.statusText || `HTTP ${err.status}`
+          }
         }
+        if (!msg) msg = `Request failed (${err.status})`
+      }
+      if (!msg && err != null) {
+        msg = String(err)
       }
       setAuthError(msg || 'Authentication failed')
       throw err
