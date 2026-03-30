@@ -1,7 +1,8 @@
 FROM heroiclabs/nakama:3.22.0
 
-# Copy your Lua modules into Nakama's default module path.
-COPY ./modules /nakama/data/modules
+# Copy Lua modules. Paths are relative to the Docker *build context* (usually repo root on Render).
+# If you set Render "Root Directory" to `nakama`, change this line to: COPY modules /nakama/data/modules
+COPY nakama/modules /nakama/data/modules
 
 # Render sets $PORT at runtime. JSON-array CMD does not run a shell, so ${VARS}
 # would be passed literally — use sh -c for expansion.
