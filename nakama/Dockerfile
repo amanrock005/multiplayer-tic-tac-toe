@@ -3,14 +3,8 @@ FROM heroiclabs/nakama:3.22.0
 # Copy your Lua modules into Nakama's default module path.
 COPY ./modules /nakama/data/modules
 
-# Render expects the app to listen on $PORT.
-# We pass config via flags so it works cleanly on Render.
-CMD ["/nakama/nakama",
-  "--name", "nakama",
-  "--logger.stdout", "true",
-  "--database.address", "${NAKAMA_DATABASE_ADDRESS}",
-  "--socket.server_key", "${NAKAMA_SERVER_KEY}",
-  "--socket.port", "${PORT}",
-  "--console.password", "${NAKAMA_CONSOLE_PASSWORD}",
-  "--google_auth.credentials_json", "${GOOGLE_CREDENTIALS_JSON}"
-]
+# Render sets $PORT at runtime. JSON-array CMD does not run a shell, so ${VARS}
+# would be passed literally — use sh -c for expansion.
+# If GOOGLE_CREDENTIALS_JSON breaks quoting (rare), store it as a single-line
+# string in Render or use a base64-encoded value + decode in a custom entrypoint.
+CMD ["/bin/sh", "-c", "exec /nakama/nakama --name nakama --logger.stdout true --database.address \"$NAKAMA_DATABASE_ADDRESS\" --socket.server_key \"$NAKAMA_SERVER_KEY\" --socket.port \"${PORT:-7350}\" --console.password \"$NAKAMA_CONSOLE_PASSWORD\" --google_auth.credentials_json \"$GOOGLE_CREDENTIALS_JSON\""]
