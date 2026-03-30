@@ -25,6 +25,13 @@ if [ -z "$NAKAMA_DATABASE_ADDRESS" ]; then
   exit 1
 fi
 
+# Render’s UI may wrap long values; pasting pretty-printed JSON can insert real newlines.
+# Strip them so the OAuth client JSON is one continuous string for Nakama.
+if [ -n "$GOOGLE_CREDENTIALS_JSON" ]; then
+  GOOGLE_CREDENTIALS_JSON=$(printf '%s' "$GOOGLE_CREDENTIALS_JSON" | tr -d '\n\r')
+  export GOOGLE_CREDENTIALS_JSON
+fi
+
 exec /nakama/nakama \
   --name nakama \
   --logger.stdout true \
