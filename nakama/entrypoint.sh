@@ -10,6 +10,16 @@ if [ -z "$NAKAMA_DATABASE_ADDRESS" ] && [ -n "$DATABASE_URL" ]; then
   export NAKAMA_DATABASE_ADDRESS="$addr"
 fi
 
+# If you pasted a full postgres URL into NAKAMA_DATABASE_ADDRESS, strip the scheme
+# (Nakama expects user:pass@host:port/db — it appends postgres:// itself).
+case "$NAKAMA_DATABASE_ADDRESS" in
+  postgresql://*|postgres://*)
+    NAKAMA_DATABASE_ADDRESS="${NAKAMA_DATABASE_ADDRESS#postgresql://}"
+    NAKAMA_DATABASE_ADDRESS="${NAKAMA_DATABASE_ADDRESS#postgres://}"
+    export NAKAMA_DATABASE_ADDRESS
+    ;;
+esac
+
 if [ -z "$NAKAMA_DATABASE_ADDRESS" ]; then
   echo "nakama: missing database config. Set NAKAMA_DATABASE_ADDRESS, or link Render Postgres so DATABASE_URL is set." >&2
   exit 1
