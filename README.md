@@ -1,5 +1,8 @@
 # Multiplayer Tic-Tac-Toe — Server-Authoritative Architecture
 
+## Live Link
+https://multiplayer-tic-tac-toe-1-gg12.onrender.com
+
 ## Folder Structure
 
 ```
@@ -42,11 +45,7 @@ tictactoe/
 │       └── styles/
 │           └── global.css           # Full design system
 │
-└── deployment/
-    ├── docker-compose.yml           # Nakama + PostgreSQL
-    ├── nginx.conf                   # Reverse proxy + WebSocket
-    ├── .env.example                 # All required env vars
-    └── DEPLOY.md                    # Step-by-step deployment guide
+
 ```
 
 ## Architecture — How It Works
