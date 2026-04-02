@@ -77,7 +77,16 @@ export function AuthProvider({ children }) {
       if (!msg && err != null) {
         msg = String(err)
       }
-      setAuthError(msg || 'Authentication failed')
+
+      // Friendly message for cold starts / timeouts in production.
+      const looksLikeNetworkTimeout =
+        !navigator.onLine ||
+        /networkerror|failed to fetch|timeout|timed out/i.test(msg)
+
+      const friendly =
+        'Login request is taking a while. The game server may be cold-starting — please wait a few seconds and try signing in again.'
+
+      setAuthError(looksLikeNetworkTimeout ? friendly : (msg || 'Authentication failed'))
       throw err
     }
   }, [client])
